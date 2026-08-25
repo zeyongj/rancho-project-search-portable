@@ -7,6 +7,7 @@ import threading
 import time
 import webbrowser
 from pathlib import Path
+from urllib.request import urlopen
 
 from .data_store import DataStore
 from .server import create_server
@@ -120,15 +121,39 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mode", choices=("choose", "window", "browser"), default="choose")
     parser.add_argument("--data-dir", type=Path, help="Use a custom writable data folder")
     parser.add_argument("--port", type=int, default=0, help="Local port (0 selects a free port)")
+    parser.add_argument("--smoke-test", action="store_true", help=argparse.SUPPRESS)
     return parser
+
+
+def smoke_test(data_dir: Path) -> int:
+    server = create_server(DataStore(data_dir), port=0)
+    thread = _serve_in_thread(server)
+    try:
+        base_url = f"http://127.0.0.1:{server.server_port}"
+        with urlopen(f"{base_url}/api/health", timeout=10) as response:
+            if response.status != 200:
+                return 1
+        with urlopen(f"{base_url}/api/dataset", timeout=10) as response:
+            if response.status != 200 or b'"activeProjects"' not in response.read():
+                return 1
+        with urlopen(f"{base_url}/", timeout=10) as response:
+            if response.status != 200 or b"Rancho Project Search" not in response.read():
+                return 1
+        return 0
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    data_dir = args.data_dir.expanduser().resolve() if args.data_dir else portable_root()
+    if args.smoke_test:
+        return smoke_test(data_dir)
     mode = choose_mode() if args.mode == "choose" else args.mode
     if not mode:
         return 0
-    data_dir = args.data_dir.expanduser().resolve() if args.data_dir else portable_root()
     server = create_server(DataStore(data_dir), port=args.port)
     _serve_in_thread(server)
     host, port = server.server_address[:2]
@@ -138,4 +163,3 @@ def main(argv: list[str] | None = None) -> int:
     else:
         run_browser_controller(url, server)
     return 0
-
