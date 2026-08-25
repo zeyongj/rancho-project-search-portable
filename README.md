@@ -1,4 +1,8 @@
-# Rancho Project Search — Python
+# Rancho Project Search — Portable Windows & macOS
+
+This repository builds the no-install Windows 11 and macOS distributions. For build instructions, downloadable archive contents, architecture choices, and first-run security notes, see [PORTABLE.md](PORTABLE.md).
+
+The complete Python source is intentionally retained here so each executable is reproducible and auditable. The user-facing application and data behavior are the same as the Python repository described below.
 
 A local-first Python migration of the original `zeyongj.github.io` project search site. It preserves the Rancho visual design and project-number workflow while adding a password-free Data Workspace, one-file Excel import, and expanded fuzzy search.
 
@@ -102,4 +106,3 @@ run.py                        Source checkout launcher
 ## License
 
 Copyright © 2026 Zeyong Jin. All rights reserved. See [LICENSE](LICENSE).
-

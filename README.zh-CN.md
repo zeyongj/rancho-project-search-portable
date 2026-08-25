@@ -1,4 +1,8 @@
-# Rancho Project Search — Python 版
+# Rancho Project Search — Windows/macOS 绿色版
+
+本仓库用于构建免安装的 Windows 11 与 macOS 可执行程序。下载对应 ZIP 并完整解压即可使用；不要把可执行程序与旁边的 `data/` 文件夹分开。详细说明见 [PORTABLE.md](PORTABLE.md)。
+
+绿色版与下方的 Python 版使用同一套 UI 和数据逻辑，并提供桌面窗口、本地浏览器两种启动方式。
 
 这是原 `zeyongj.github.io` 项目的本地 Python 迁移版。原有 Rancho UI、Project Number 主键、Strata/RM 搜索和 AP/AR 分配逻辑均保留，同时增加了本地数据管理与 Excel 一键导入。
 
@@ -48,4 +52,3 @@ Project Number 仍然是主键。应用先读取 `pm.csv`；只要项目号出�
 附件工作簿中 `5038`、`5049`、`5131` 同时出现在 Active Projects 与 NLM，导入后这三个项目都会正确显示为 Active。
 
 更完整的数据说明见 [docs/DATA_GUIDE.md](docs/DATA_GUIDE.md)。
-
