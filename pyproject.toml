@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rancho-project-search"
+version = "3.0.0"
+description = "Local-first Rancho project search and data workspace"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["openpyxl==3.1.5"]
+
+[project.optional-dependencies]
+desktop = ["pywebview==5.4"]
+dev = ["pytest==8.3.5", "ruff==0.9.10"]
+
+[project.scripts]
+rancho-project-search = "rancho_project_search.launch:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+rancho_project_search = ["web/*", "default_data/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
