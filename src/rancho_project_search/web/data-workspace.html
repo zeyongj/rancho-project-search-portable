@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rancho Data Workspace</title>
+  <link rel="stylesheet" href="workspace.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2c5aa0;
+      --primary-dark: #1e4278;
+      --secondary: #4a90e2;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --border: #dee2e6;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .logo-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-header img {
+      max-width: 250px;
+      height: auto;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    }
+
+    .admin-box {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+
+    .admin-box h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--dark);
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--light);
+      color: var(--dark);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .list-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 2px solid var(--light);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: var(--light);
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 40px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      background: white;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .list-item input {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .delete-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s;
+    }
+
+    .delete-btn:hover {
+      background: #c82333;
+      transform: scale(1.1);
+    }
+
+    .section-divider {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--primary), transparent);
+      margin: 30px 0;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-link a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .back-link a:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 768px) {
+      .list-item {
+        grid-template-columns: 1fr;
+      }
+
+      .page-container {
+        padding: 10px;
+      }
+
+      .admin-box {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-container">
+    <div class="logo-header">
+      <img src="rancho-logo.png" alt="Rancho Logo">
+    </div>
+
+    <div id="dashboard" class="admin-box workspace-shell">
+      <div class="workspace-header">
+        <div>
+          <h1>🗂️ Data Workspace</h1>
+          <p>No login is required. Changes are written only to this computer.</p>
+        </div>
+        <div class="workspace-actions">
+          <button id="openFolderBtn" class="btn btn-secondary">Open Data Folder</button>
+          <a href="index.html" class="btn btn-primary">Back to Search</a>
+        </div>
+      </div>
+
+      <div id="notice" class="workspace-notice" role="status" aria-live="polite"></div>
+
+      <section class="workspace-section xlsx-section">
+        <div class="section-heading">
+          <div>
+            <span class="step-badge">Recommended</span>
+            <h2>Update from one Project List workbook</h2>
+            <p>Upload one <code>.xlsx</code>. The Active Projects tab generates <code>pm.csv</code>; the NLM tab generates <code>nlm.csv</code>. The workbook and both CSV files remain available.</p>
+          </div>
+        </div>
+        <div class="upload-row">
+          <label for="projectListFile" class="visually-hidden">Choose Project List workbook</label>
+          <input id="projectListFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+          <button id="importProjectListBtn" class="btn btn-success">Import Project List</button>
+        </div>
+        <div class="safe-note">Existing files are copied to a timestamped backup before replacement. Projects found in pm.csv remain Active even when duplicated in nlm.csv.</div>
+      </section>
+
+      <section class="workspace-section">
+        <div class="section-heading">
+          <div>
+            <h2>Replace an individual data file</h2>
+            <p>Choose exactly which local file will be overwritten.</p>
+          </div>
+        </div>
+        <div class="replace-grid">
+          <div class="form-group">
+            <label for="replaceTarget">Replace</label>
+            <select id="replaceTarget">
+              <option value="pm.csv">pm.csv</option>
+              <option value="nlm.csv">nlm.csv</option>
+              <option value="fa.csv">fa.csv</option>
+              <option value="rm.csv">rm.csv</option>
+              <option value="ap.json">ap.json</option>
+              <option value="ar.json">ar.json</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="replacementFile">Upload file</label>
+            <input id="replacementFile" type="file" accept=".csv,.json">
+          </div>
+          <button id="replaceFileBtn" class="btn btn-success">Validate & Replace</button>
+        </div>
+      </section>
+
+      <section class="workspace-section">
+        <div class="section-heading editor-heading">
+          <div>
+            <h2>Direct text editor</h2>
+            <p>Load a CSV or JSON file, then copy, paste, or edit its contents directly.</p>
+          </div>
+          <div class="editor-file-actions">
+            <label for="editorFile" class="visually-hidden">Choose text data file</label>
+            <select id="editorFile">
+              <option value="pm.csv">pm.csv</option>
+              <option value="nlm.csv">nlm.csv</option>
+              <option value="fa.csv">fa.csv</option>
+              <option value="rm.csv">rm.csv</option>
+              <option value="ap.json">ap.json</option>
+              <option value="ar.json">ar.json</option>
+            </select>
+            <button id="reloadEditorBtn" class="btn btn-secondary">Reload</button>
+          </div>
+        </div>
+        <textarea id="dataEditor" class="data-editor" spellcheck="false" aria-label="Data file text editor"></textarea>
+        <div class="editor-footer">
+          <span id="editorStatus">Select a file to begin.</span>
+          <div>
+            <button id="copyEditorBtn" class="btn btn-secondary">Copy All</button>
+            <a id="downloadEditorBtn" class="btn btn-secondary" href="#">Download</a>
+            <button id="saveEditorBtn" class="btn btn-success">Save Changes</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-section">
+        <div class="section-heading editor-heading">
+          <div>
+            <h2>AP / AR distribution editor</h2>
+            <p>The original add, edit, and delete workflow is preserved here.</p>
+          </div>
+          <div class="distribution-tabs">
+            <button class="distribution-tab active" data-type="ap">AP</button>
+            <button class="distribution-tab" data-type="ar">AR</button>
+          </div>
+        </div>
+        <div class="distribution-headings"><span>Name</span><span>Portfolio</span><span>Include</span><span>Exclude</span><span></span></div>
+        <div id="distributionList" class="list-container"></div>
+        <div class="distribution-footer">
+          <button id="addDistributionBtn" class="btn btn-secondary">+ Add Entry</button>
+          <button id="saveDistributionBtn" class="btn btn-success">Save AP</button>
+        </div>
+      </section>
+
+      <section class="workspace-section">
+        <div class="section-heading">
+          <div>
+            <h2>Local file inventory</h2>
+            <p id="dataDirectory">Loading data directory…</p>
+          </div>
+          <button id="refreshFilesBtn" class="btn btn-secondary">Refresh</button>
+        </div>
+        <div id="fileInventory" class="file-inventory"></div>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="workspace.js"></script>
+</body>
+</html>

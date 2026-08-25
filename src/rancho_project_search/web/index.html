@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rancho Project Search</title>
+  <link rel="stylesheet" href="enhancements.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2c5aa0;
+      --primary-dark: #1e4278;
+      --secondary: #4a90e2;
+      --success: #28a745;
+      --danger: #dc3545;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --border: #dee2e6;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --rm-accent: #7c3aed;
+      --rm-accent-dark: #5b21b6;
+      --rm-accent-light: #ede9fe;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      flex: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .logo {
+      text-align: center;
+      margin: 30px 0 20px 0;
+    }
+
+    .logo img {
+      max-width: 280px;
+      height: auto;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    }
+
+    .current-time {
+      text-align: center;
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .visit-counter {
+      text-align: center;
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 20px;
+      font-family: monospace;
+    }
+
+    .search-card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+
+    .search-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .search-header h1 {
+      color: var(--primary);
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--light);
+      color: var(--dark);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    /* ── Top-level tab bar ── */
+    .top-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+    }
+
+    .top-tab {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: var(--light);
+      color: var(--dark);
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .top-tab:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    .top-tab.active-strata {
+      background: var(--primary);
+      color: white;
+    }
+
+    .top-tab.active-rm {
+      background: var(--rm-accent);
+      color: white;
+    }
+
+    .top-tab:not(.active-strata):not(.active-rm):hover {
+      background: var(--border);
+    }
+
+    .top-tab .tab-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .top-tab.active-strata .tab-badge,
+    .top-tab.active-rm .tab-badge {
+      background: rgba(0,0,0,0.28);
+      color: white;
+    }
+
+    .top-tab:not(.active-strata):not(.active-rm) .tab-badge {
+      background: var(--border);
+      color: var(--dark);
+    }
+
+    /* ── Search mode tabs ── */
+    .search-modes {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--light);
+      padding-bottom: 10px;
+    }
+
+    .mode-btn {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: var(--dark);
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .mode-btn.active {
+      color: var(--primary);
+    }
+
+    .mode-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .search-input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 50px 16px 20px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(44, 90, 160, 0.1);
+    }
+
+    .search-input.rm-input:focus {
+      border-color: var(--rm-accent);
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    /* RM prefix badge in search box */
+    .rm-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--rm-accent);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .search-input.rm-input {
+      padding-left: 60px;
+    }
+
+    .advanced-search {
+      display: none;
+      background: var(--light);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .advanced-search.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: var(--dark);
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .spinner {
+      border: 3px solid var(--light);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .results-container {
+      display: none;
+    }
+
+    .results-container.active {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--light);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .results-header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .btn-clear {
+      padding: 8px 16px;
+      background: var(--light);
+      color: var(--dark);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-clear:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+      transform: translateY(-2px);
+    }
+
+    .results-count {
+      color: var(--dark);
+      font-weight: 500;
+    }
+
+    .result-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+
+    .result-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .result-card.nlm {
+      border-left: 5px solid var(--danger);
+      background: #fff5f5;
+    }
+
+    .result-card.rm-card {
+      border-left: 5px solid var(--rm-accent);
+      background: #faf5ff;
+    }
+
+    .result-card.rm-card:hover {
+      border-color: var(--rm-accent);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+
+    .project-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .project-number.rm-number {
+      color: var(--rm-accent);
+    }
+
+    .nlm-badge {
+      background: var(--danger);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .rm-badge {
+      background: var(--rm-accent);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .result-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: #6c757d;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .detail-value {
+      font-size: 16px;
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    /* RM units table for multi-unit projects */
+    .rm-units-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .rm-units-table th {
+      background: var(--rm-accent-light);
+      color: var(--rm-accent-dark);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--rm-accent);
+    }
+
+    .rm-units-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--dark);
+    }
+
+    .rm-units-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rm-units-table tr:hover td {
+      background: var(--rm-accent-light);
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+
+    .no-results-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    footer {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      text-align: center;
+      color: var(--dark);
+      font-size: 14px;
+      margin-top: 30px;
+    }
+
+    .footer-date {
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-card.rm-stat {
+      background: linear-gradient(135deg, var(--rm-accent) 0%, #a78bfa 100%);
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .rm-search-hint {
+      font-size: 13px;
+      color: #6c757d;
+      margin-bottom: 15px;
+      padding: 10px 14px;
+      background: var(--rm-accent-light);
+      border-radius: 8px;
+      border-left: 3px solid var(--rm-accent);
+    }
+
+    .rm-search-hint code {
+      background: rgba(124, 58, 237, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      color: var(--rm-accent-dark);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .btn-rm {
+      background: var(--rm-accent);
+      color: white;
+    }
+
+    .btn-rm:hover {
+      background: var(--rm-accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    .load-more-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .btn-load-more {
+      padding: 12px 40px;
+      border: 2px solid var(--rm-accent);
+      border-radius: 10px;
+      background: white;
+      color: var(--rm-accent);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-load-more:hover {
+      background: var(--rm-accent);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    .load-more-info {
+      font-size: 13px;
+      color: #6c757d;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .search-card {
+        padding: 20px;
+      }
+
+      .search-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .result-details {
+        grid-template-columns: 1fr;
+      }
+
+      .project-name {
+        font-size: 18px;
+      }
+
+      .top-tab {
+        padding: 12px 10px;
+        font-size: 13px;
+      }
+
+      .rm-units-table {
+        font-size: 12px;
+      }
+
+      .rm-units-table th,
+      .rm-units-table td {
+        padding: 6px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="logo">
+      <img src="rancho-logo.png" alt="Rancho Logo">
+    </div>
+    <div class="current-time" id="currentTime">Loading time...</div>
+    <div class="visit-counter" id="visitCounter">💾 Data: <span id="userLocation">Local workspace</span></div>
+
+    <div class="search-card">
+      <div class="search-header">
+        <h1 id="searchTitle">🔍 Project Search</h1>
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="advancedBtn">Advanced Search</button>
+          <a href="data-workspace.html" class="btn btn-primary">Data Workspace</a>
+        </div>
+      </div>
+
+      <!-- Top-level Tabs -->
+      <div class="top-tabs">
+        <button class="top-tab active-strata" id="tabStrata" data-tab="strata">
+          🏢 Strata Projects <span class="tab-badge" id="strataCountBadge">—</span>
+        </button>
+        <button class="top-tab" id="tabRM" data-tab="rm">
+          🏠 RM Projects <span class="tab-badge" id="rmCountBadge">—</span>
+        </button>
+      </div>
+
+      <div class="stats" id="stats" style="display: none;">
+        <div class="stat-card">
+          <div class="stat-number" id="totalProjects">0</div>
+          <div class="stat-label">Strata Projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="nlmCount">0</div>
+          <div class="stat-label">NLM Projects</div>
+        </div>
+        <div class="stat-card rm-stat">
+          <div class="stat-number" id="rmProjectCount">0</div>
+          <div class="stat-label">RM Projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="searchTime">0ms</div>
+          <div class="stat-label">Search Time</div>
+        </div>
+      </div>
+
+      <!-- ═══ Add: STRATA TAB ═══ -->
+      <div class="tab-content active" id="strataContent">
+        <div class="search-modes">
+          <button class="mode-btn active" data-mode="simple">Simple Search</button>
+          <button class="mode-btn" data-mode="multi">Multi-Project</button>
+          <button class="mode-btn" data-mode="strata">By Strata Plan</button>
+        </div>
+
+        <div class="search-input-group">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Enter project number (e.g., 5164 or 5164-10)"
+            autocomplete="off"
+          >
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="advanced-search" id="advancedSearch">
+          <div class="advanced-heading">
+            <div>
+              <h3>Advanced Search</h3>
+              <p>Use one or more fields. Partial words and minor spelling differences are accepted.</p>
+            </div>
+            <button type="button" class="btn-reset-filters" id="resetFiltersBtn">Reset filters</button>
+          </div>
+          <div class="advanced-grid">
+            <div class="form-group span-two">
+              <label for="filterProjectName">Project Name</label>
+              <input type="text" id="filterProjectName" placeholder="e.g., Picasso Galleria retail">
+            </div>
+            <div class="form-group span-two">
+              <label for="filterAddress">Address</label>
+              <input type="text" id="filterAddress" placeholder="e.g., 8531 Capstan Way Richmond">
+            </div>
+            <div class="form-group">
+              <label for="filterStrata">Strata Plan</label>
+              <input type="text" id="filterStrata" placeholder="e.g., LMS3174">
+            </div>
+            <div class="form-group">
+              <label for="filterPM">PM Name</label>
+              <input type="text" id="filterPM" placeholder="e.g., CKS">
+            </div>
+            <div class="form-group">
+              <label for="filterFA">FA Name</label>
+              <input type="text" id="filterFA" placeholder="e.g., Jenny">
+            </div>
+            <div class="form-group">
+              <label for="filterAP">AP Name</label>
+              <input type="text" id="filterAP" placeholder="e.g., Ruby">
+            </div>
+            <div class="form-group">
+              <label for="filterAR">AR Name</label>
+              <input type="text" id="filterAR" placeholder="e.g., Eric">
+            </div>
+            <div class="form-group">
+              <label for="filterNLM">Project Status</label>
+              <select id="filterNLM">
+                <option value="">All Projects</option>
+                <option value="active">Active Only</option>
+                <option value="nlm">NLM Only</option>
+              </select>
+            </div>
+          </div>
+          <div class="priority-note" id="priorityNote">Active source priority: a project found in pm.csv is always treated as Active, even if the same number also exists in nlm.csv.</div>
+        </div>
+
+        <button class="btn btn-primary" id="searchBtn" style="width: 100%;">Search Projects</button>
+      </div>
+
+      <!-- ═══ RM TAB ═══ -->
+      <div class="tab-content" id="rmContent">
+        <div class="rm-search-hint">
+          Enter the first 4 digits of the File # to search. For example, type <code>0202</code> to find RM0202.
+          You can also search by street name, city, or PM initials.
+        </div>
+
+        <div class="search-input-group">
+          <span class="rm-prefix">RM</span>
+          <input
+            type="text"
+            id="rmSearchInput"
+            class="search-input rm-input"
+            placeholder="e.g., 0202 or PRINCESS or RMD"
+            autocomplete="off"
+          >
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <button class="btn btn-rm" id="rmSearchBtn" style="width: 100%;">Search RM Projects</button>
+      </div>
+
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <div>Loading data...</div>
+      </div>
+    </div>
+
+    <div id="resultsContainer" class="search-card results-container">
+      <div class="results-header">
+        <div class="results-header-left">
+          <h2 style="color: var(--primary); margin: 0;" id="resultsTitle">Search Results</h2>
+          <span class="results-count" id="resultsCount">0 results</span>
+        </div>
+        <button class="btn-clear" id="clearBtn">🗑️ Clear Results</button>
+      </div>
+      <div id="results"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-date" id="lastModified">Site last updated: Loading...</div>
+    <div>© <span id="currentYear"></span> Zeyong Jin. All Rights Reserved.</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
